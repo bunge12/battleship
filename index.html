@@ -16,7 +16,10 @@
   <script>
     let player = {
       placed: 0,
-      toPlace: { carrier: 5, battl: 4 },
+      toPlace: [
+        { name: "carrier", length: 5 },
+        { name: "battl", length: 4 },
+      ],
       placement: {
         A: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         B: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -34,27 +37,27 @@
     $(document).ready(function () {
       for (let i = 1; i <= 10; i++) {
         $("tbody").append(`<tr>
-          <th>${i}</th>
-          <td id=A${i}></td>
-          <td id=B${i}></td>
-          <td id=C${i}></td>
-          <td id=D${i}></td>
-          <td id=E${i}></td>
-          <td id=F${i}></td>
-          <td id=G${i}></td>
-          <td id=H${i}></td>
-          <td id=I${i}></td>
-          <td id=J${i}></td>
-        </tr>`);
+              <th>${i}</th>
+              <td id=A${i}></td>
+              <td id=B${i}></td>
+              <td id=C${i}></td>
+              <td id=D${i}></td>
+              <td id=E${i}></td>
+              <td id=F${i}></td>
+              <td id=G${i}></td>
+              <td id=H${i}></td>
+              <td id=I${i}></td>
+              <td id=J${i}></td>
+            </tr>`);
       }
     });
 
-    $(document).ready(function () {
-      $("#player tr td").click(function (event) {
-        let id = $(this).attr("id");
-        alert(id);
-      });
-    });
+    // $(document).ready(function () {
+    //   $("#player tr td").click(function (event) {
+    //     let id = $(this).attr("id");
+    //     alert(id);
+    //   });
+    // });
 
     // async function enter(ship, len) {
     //   $("#log").append(`<p>Place ${ship}. Length is ${len}</p>`);
@@ -68,17 +71,34 @@
     //     if (counter == length) resolve();
     //   });
     // }
-
+    async function place(ship) {
+      $("#log").append(`<p>Place ${ship.name}. Length is ${ship.length}</p>`);
+      return new Promise(function (resolve, reject) {
+        let counter = 0;
+        $("#player tr td").click(function (event) {
+          let id = $(this).attr("id");
+          counter++;
+          if (counter === ship.length) {
+            resolve("Yes");
+          }
+          console.log("cliocked", counter);
+        });
+      });
+    }
     $(document).ready(function () {
-      $("#start").click(function (event) {
+      $("#start").click(async function (event) {
         $("#log").append("<p>Game Initiated. Place your ships.</p>");
         $(this).html("Waiting for ship placement").attr("disabled", "disabled");
-        $.each(player.toPlace, async function (key, value) {
-          // await enter(key, value);
-          $("#log").append(`<p>Place ${key}. Length is ${value}</p>`);
-          let count = 0;
-          return value !== count;
-        });
+        // $.each(player.toPlace, async function (key, value) {
+        //   // await enter(key, value);
+        //   $("#log").append(`<p>Place ${key}. Length is ${value}</p>`);
+        //   let count = 0;
+        //   return value !== count;
+        // });
+        for (const ship of player.toPlace) {
+          // console.log(ship);
+          await place(ship);
+        }
       });
     });
   </script>
