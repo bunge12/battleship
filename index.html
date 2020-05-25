@@ -14,6 +14,23 @@
     }
   </style>
   <script>
+    let player = {
+      placed: 0,
+      toPlace: { carrier: 5, battl: 4 },
+      placement: {
+        A: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        B: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        C: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        D: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        E: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        F: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        G: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        H: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        I: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        J: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      },
+    };
+
     $(document).ready(function () {
       for (let i = 1; i <= 10; i++) {
         $("tbody").append(`<tr>
@@ -31,9 +48,42 @@
         </tr>`);
       }
     });
+
+    $(document).ready(function () {
+      $("#player tr td").click(function (event) {
+        let id = $(this).attr("id");
+        alert(id);
+      });
+    });
+
+    // async function enter(ship, len) {
+    //   $("#log").append(`<p>Place ${ship}. Length is ${len}</p>`);
+    //   return new Promise((resolve, reject) => {
+    //     let counter = 0;
+    //     $("#player tr td").click(function (event) {
+    //       let id = $(this).attr("id");
+    //       alert(id);
+    //       counter++;
+    //     });
+    //     if (counter == length) resolve();
+    //   });
+    // }
+
+    $(document).ready(function () {
+      $("#start").click(function (event) {
+        $("#log").append("<p>Game Initiated. Place your ships.</p>");
+        $(this).html("Waiting for ship placement").attr("disabled", "disabled");
+        $.each(player.toPlace, async function (key, value) {
+          // await enter(key, value);
+          $("#log").append(`<p>Place ${key}. Length is ${value}</p>`);
+          let count = 0;
+          return value !== count;
+        });
+      });
+    });
   </script>
   <body>
-    <table>
+    <table id="player">
       <thead>
         <tr>
           <th></th>
@@ -51,5 +101,12 @@
       </thead>
       <tbody></tbody>
     </table>
+    <button id="start">Start Game</button>
+    <div>
+      <h3>Game Log</h3>
+      <div id="log">
+        <p>welcome.</p>
+      </div>
+    </div>
   </body>
 </html>
