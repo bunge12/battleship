@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Battleship</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <style>
+    table,
+    th,
+    td {
+      border: 1px solid black;
+    }
+  </style>
+  <script>
+    $(document).ready(function () {
+      for (let i = 1; i <= 10; i++) {
+        $("tbody").append(`<tr>
+          <th>${i}</th>
+          <td id=A${i}></td>
+          <td id=B${i}></td>
+          <td id=C${i}></td>
+          <td id=D${i}></td>
+          <td id=E${i}></td>
+          <td id=F${i}></td>
+          <td id=G${i}></td>
+          <td id=H${i}></td>
+          <td id=I${i}></td>
+          <td id=J${i}></td>
+        </tr>`);
+      }
+    });
+  </script>
+  <body>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>A</th>
+          <th>B</th>
+          <th>C</th>
+          <th>D</th>
+          <th>E</th>
+          <th>F</th>
+          <th>G</th>
+          <th>H</th>
+          <th>I</th>
+          <th>J</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </body>
+</html>
