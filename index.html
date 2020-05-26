@@ -76,50 +76,74 @@
       } else return true;
     };
 
+    const updatePlacement = (coordinates) => {
+      coordinates.forEach((element) => {
+        ai.placement[element.col][element.row] = 1;
+      });
+    };
+
+    const generateShip = (ship) => {
+      const columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+      const result = [];
+      const start = generateStart();
+      const direction = randomSelection();
+      canPlace(start.col, start.row)
+        ? result.push({ col: start.col, row: start.row })
+        : generateShip(ship);
+      // console.log("start", start);
+      if (direction) {
+        const index = columns.indexOf(start.col);
+        if (index + ship.length < 10) {
+          for (let i = 1; i < ship.length; i++) {
+            const next = columns[index + i];
+            const row = start.row;
+            canPlace(next, row)
+              ? result.push({ col: next, row })
+              : generateShip(ship, start, direction);
+            // console.log("horizontal forward ABC", { col: next, row });
+          }
+        } else {
+          for (let i = 1; i < ship.length; i++) {
+            const next = columns[index - i];
+            const row = start.row;
+            canPlace(next, row)
+              ? result.push({ col: next, row })
+              : generateShip(ship, start, direction);
+            // console.log("horizontal backward BCA", { col: next, row });
+          }
+        }
+      } else {
+        const row = start.row;
+        if (row + ship.length < 10) {
+          for (let i = 1; i < ship.length; i++) {
+            const col = start.col;
+            const next = start.row + i;
+            canPlace(col, next)
+              ? result.push({ col, row: next })
+              : generateShip(ship, start, direction);
+            // console.log("vertical increase 123", { col, row: next });
+          }
+        } else {
+          for (let i = 1; i < ship.length; i++) {
+            const col = start.col;
+            const next = start.row - i;
+            canPlace(col, next)
+              ? result.push({ col, row: next })
+              : generateShip(ship, start, direction);
+            // console.log("vertical decrease 321", { col, row: next });
+          }
+        }
+      }
+
+      console.log(`Ship: ${ship.name}:`, result);
+      return result;
+    };
+
     const placeAi = () => {
       const columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
       for (const ship of toPlace) {
-        const start = generateStart();
-        const horizontal = randomSelection();
-        canPlace(start.col, start.row)
-          ? (ai.placement[start.col][start.row] = 1)
-          : placeAi();
-        console.log("start", start);
-        if (horizontal) {
-          const index = columns.indexOf(start.col);
-          if (index + ship.length < 10) {
-            for (let i = 1; i < ship.length; i++) {
-              const next = columns[index + i];
-              const row = start.row;
-              canPlace(next, row) ? (ai.placement[next][row] = 1) : placeAi();
-              console.log("horizontal forward ABC", { col: next, row });
-            }
-          } else {
-            for (let i = 1; i < ship.length; i++) {
-              const next = columns[index - i];
-              const row = start.row;
-              canPlace(next, row) ? (ai.placement[next][row] = 1) : placeAi();
-              console.log("horizontal backward BCA", { col: next, row });
-            }
-          }
-        } else {
-          const row = start.row;
-          if (row + ship.length < 10) {
-            for (let i = 1; i < ship.length; i++) {
-              const col = start.col;
-              const next = start.row + i;
-              canPlace(col, next) ? (ai.placement[col][next] = 1) : placeAi();
-              console.log("vertical increase 123", { col, row: next });
-            }
-          } else {
-            for (let i = 1; i < ship.length; i++) {
-              const col = start.col;
-              const next = start.row - i;
-              canPlace(col, next) ? (ai.placement[col][next] = 1) : placeAi();
-              console.log("vertical decrease 321", { col, row: next });
-            }
-          }
-        }
+        const newShip = generateShip(ship);
+        updatePlacement(newShip);
       }
     };
 
