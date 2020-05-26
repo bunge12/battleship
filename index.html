@@ -7,19 +7,26 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   </head>
   <style>
+    table {
+      display: inline-block;
+    }
     table,
     th,
     td {
       border: 1px solid black;
     }
+    #selected {
+      background-color: coral;
+    }
   </style>
   <script>
+    const toPlace = [
+      { name: "carrier", length: 2 },
+      { name: "battl", length: 2 },
+    ];
+
     let player = {
       placed: 0,
-      toPlace: [
-        { name: "carrier", length: 5 },
-        { name: "battl", length: 4 },
-      ],
       placement: {
         A: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         B: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -32,6 +39,72 @@
         I: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         J: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       },
+    };
+    let ai = {
+      placed: 0,
+      placement: {
+        A: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        B: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        C: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        D: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        E: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        F: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        G: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        H: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        I: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        J: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      },
+    };
+
+    const randomSelection = () => {
+      return Math.random() < 0.5 ? true : false;
+    };
+
+    const generateStart = () => {
+      const columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+      const col = columns[Math.floor(Math.random() * columns.length)];
+      const row = Math.floor(Math.random() * 9);
+      return { col, row };
+    };
+
+    const placeAi = () => {
+      const columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+      for (const ship of toPlace) {
+        const start = generateStart();
+        const horizontal = randomSelection();
+        console.log("start", start);
+        if (horizontal) {
+          const index = columns.indexOf(start.col);
+          if (index + 5 < 10) {
+            const next = columns[index + 1];
+            const row = start.row;
+            console.log("horizontal forward ABC", { col: next, row });
+          } else {
+            const next = columns[index - 1];
+            const row = start.row;
+            console.log("horizontal backward BCA", { col: next, row });
+          }
+        } else {
+          const row = start.row;
+          if (row + 5 < 10) {
+            const col = start.col;
+            const next = start.row + 1;
+            console.log("vertical increase 123", { col, row: next });
+          } else {
+            const col = start.col;
+            const next = start.row - 1;
+            console.log("vertical increase 123", { col, row: next });
+          }
+        }
+      }
+    };
+
+    const game = () => {
+      placeAi();
+      const firstTurn = randomSelection();
+      $("#log").append(
+        `<p>Game started. ${firstTurn ? "player" : "comp"} has first turn</p>`
+      );
     };
 
     $(document).ready(function () {
@@ -52,58 +125,67 @@
       }
     });
 
-    // $(document).ready(function () {
-    //   $("#player tr td").click(function (event) {
-    //     let id = $(this).attr("id");
-    //     alert(id);
-    //   });
-    // });
-
-    // async function enter(ship, len) {
-    //   $("#log").append(`<p>Place ${ship}. Length is ${len}</p>`);
-    //   return new Promise((resolve, reject) => {
-    //     let counter = 0;
-    //     $("#player tr td").click(function (event) {
-    //       let id = $(this).attr("id");
-    //       alert(id);
-    //       counter++;
-    //     });
-    //     if (counter == length) resolve();
-    //   });
-    // }
     async function place(ship) {
-      $("#log").append(`<p>Place ${ship.name}. Length is ${ship.length}</p>`);
       return new Promise(function (resolve, reject) {
+        $("#log").append(`<p>Place ${ship.name}. Length is ${ship.length}</p>`);
         let counter = 0;
         $("#player tr td").click(function (event) {
+          $(this).css("background-color", "grey");
           let id = $(this).attr("id");
+          let col = id.slice(0, 1);
+          let row = id.slice(1) - 1;
+          console.log(col, row);
+          player.placement[col][row] = 1;
           counter++;
+          console.log("clicked: ", counter, ship.name);
           if (counter === ship.length) {
-            resolve("Yes");
+            player.placed++;
+            return resolve();
           }
-          console.log("cliocked", counter);
         });
+      }).finally(() => {
+        counter = 0;
+        ship = {};
       });
     }
     $(document).ready(function () {
       $("#start").click(async function (event) {
         $("#log").append("<p>Game Initiated. Place your ships.</p>");
         $(this).html("Waiting for ship placement").attr("disabled", "disabled");
-        // $.each(player.toPlace, async function (key, value) {
-        //   // await enter(key, value);
-        //   $("#log").append(`<p>Place ${key}. Length is ${value}</p>`);
-        //   let count = 0;
-        //   return value !== count;
-        // });
-        for (const ship of player.toPlace) {
+        for (const ship of toPlace) {
           // console.log(ship);
           await place(ship);
+        }
+        if (toPlace.length === player.placed) {
+          $("#log").append(`All ships placed.`);
+          $(this).html("Ready to play").prop("disabled", false);
+          game();
         }
       });
     });
   </script>
   <body>
     <table id="player">
+      Player
+      <thead>
+        <tr>
+          <th></th>
+          <th>A</th>
+          <th>B</th>
+          <th>C</th>
+          <th>D</th>
+          <th>E</th>
+          <th>F</th>
+          <th>G</th>
+          <th>H</th>
+          <th>I</th>
+          <th>J</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <table id="ai">
+      Computer
       <thead>
         <tr>
           <th></th>
