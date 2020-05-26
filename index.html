@@ -21,8 +21,11 @@
   </style>
   <script>
     const toPlace = [
-      { name: "carrier", length: 3 },
-      { name: "battleship", length: 2 },
+      { name: "carrier", length: 5 },
+      { name: "battleship", length: 4 },
+      { name: "cruiser", length: 3 },
+      { name: "submarine", length: 3 },
+      { name: "destroyer", length: 2 },
     ];
 
     let player = {
@@ -67,11 +70,20 @@
       return { col, row };
     };
 
+    const canPlace = (col, row) => {
+      if (ai.placement[col][row] === 1) {
+        return false;
+      } else return true;
+    };
+
     const placeAi = () => {
       const columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
       for (const ship of toPlace) {
         const start = generateStart();
         const horizontal = randomSelection();
+        canPlace(start.col, start.row)
+          ? (ai.placement[start.col][start.row] = 1)
+          : placeAi();
         console.log("start", start);
         if (horizontal) {
           const index = columns.indexOf(start.col);
@@ -79,12 +91,14 @@
             for (let i = 1; i < ship.length; i++) {
               const next = columns[index + i];
               const row = start.row;
+              canPlace(next, row) ? (ai.placement[next][row] = 1) : placeAi();
               console.log("horizontal forward ABC", { col: next, row });
             }
           } else {
             for (let i = 1; i < ship.length; i++) {
               const next = columns[index - i];
               const row = start.row;
+              canPlace(next, row) ? (ai.placement[next][row] = 1) : placeAi();
               console.log("horizontal backward BCA", { col: next, row });
             }
           }
@@ -94,12 +108,14 @@
             for (let i = 1; i < ship.length; i++) {
               const col = start.col;
               const next = start.row + i;
+              canPlace(col, next) ? (ai.placement[col][next] = 1) : placeAi();
               console.log("vertical increase 123", { col, row: next });
             }
           } else {
             for (let i = 1; i < ship.length; i++) {
               const col = start.col;
               const next = start.row - i;
+              canPlace(col, next) ? (ai.placement[col][next] = 1) : placeAi();
               console.log("vertical decrease 321", { col, row: next });
             }
           }
