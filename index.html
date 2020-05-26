@@ -21,8 +21,8 @@
   </style>
   <script>
     const toPlace = [
-      { name: "carrier", length: 2 },
-      { name: "battl", length: 2 },
+      { name: "carrier", length: 5 },
+      { name: "battleship", length: 5 },
     ];
 
     let player = {
@@ -57,7 +57,7 @@
     };
 
     const randomSelection = () => {
-      return Math.random() < 0.5 ? true : false;
+      return Math.random() >= 0.5;
     };
 
     const generateStart = () => {
@@ -75,25 +75,33 @@
         console.log("start", start);
         if (horizontal) {
           const index = columns.indexOf(start.col);
-          if (index + 5 < 10) {
-            const next = columns[index + 1];
-            const row = start.row;
-            console.log("horizontal forward ABC", { col: next, row });
+          if (index + ship.length < 10) {
+            for (let i = 1; i < ship.length; i++) {
+              const next = columns[index + i];
+              const row = start.row;
+              console.log("horizontal forward ABC", { col: next, row });
+            }
           } else {
-            const next = columns[index - 1];
-            const row = start.row;
-            console.log("horizontal backward BCA", { col: next, row });
+            for (let i = 1; i < ship.length; i++) {
+              const next = columns[index - i];
+              const row = start.row;
+              console.log("horizontal backward BCA", { col: next, row });
+            }
           }
         } else {
           const row = start.row;
-          if (row + 5 < 10) {
-            const col = start.col;
-            const next = start.row + 1;
-            console.log("vertical increase 123", { col, row: next });
+          if (row + ship.length < 10) {
+            for (let i = 1; i < ship.length; i++) {
+              const col = start.col;
+              const next = start.row + i;
+              console.log("vertical increase 123", { col, row: next });
+            }
           } else {
-            const col = start.col;
-            const next = start.row - 1;
-            console.log("vertical increase 123", { col, row: next });
+            for (let i = 1; i < ship.length; i++) {
+              const col = start.col;
+              const next = start.row - i;
+              console.log("vertical decrease 321", { col, row: next });
+            }
           }
         }
       }
