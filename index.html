@@ -20,16 +20,18 @@
     }
   </style>
   <script>
+    let winner = null;
     const toPlace = [
-      { name: "carrier5", length: 5 },
-      { name: "battleship4", length: 4 },
-      { name: "cruiser3", length: 3 },
-      { name: "submarine3", length: 3 },
-      { name: "destroyer2", length: 2 },
+      { name: "carrier5", length: 2 },
+      // { name: "battleship4", length: 2 },
+      // { name: "cruiser3", length: 3 },
+      // { name: "submarine3", length: 3 },
+      // { name: "destroyer2", length: 2 },
     ];
 
     let player = {
       placed: 0,
+      cellsLeft: 0,
       placement: {
         A: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         B: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -45,6 +47,7 @@
     };
     let ai = {
       placed: 0,
+      cellsLeft: 0,
       placement: {
         A: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         B: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -142,6 +145,7 @@
         }
         if (result.length === ship.length) {
           console.log(`Ship: ${ship.name} (${ship.length}):`, result);
+          ai.cellsLeft += ship.length;
           updatePlacement(result);
         }
         // updatePlacement(result);
@@ -158,12 +162,31 @@
       }
     };
 
+    // const playerTurn = async () => {
+    //   $("#ai tr td").click(function (event) {
+    //     $(this).css("background-color", "grey");
+    //     let id = $(this).attr("id");
+    //     let col = id.slice(0, 1);
+    //     let row = id.slice(1) - 1;
+    //     console.log(col, row);
+    //   });
+    // };
+
+    const turn = (firstTurn) => {
+      if (firstTurn) {
+        playerTurn();
+      } else aiTurn();
+    };
+
     const game = () => {
       placeAi();
       const firstTurn = randomSelection();
       $("#log").append(
-        `<p>Game started. ${firstTurn ? "player" : "comp"} has first turn</p>`
+        `<p>Game started. ${firstTurn ? "Player" : "Comp"} has first turn</p>`
       );
+      while (ai.cellsLeft > 0 && player.cellsLeft > 0) {
+        turn(firstTurn);
+      }
     };
 
     $(document).ready(function () {
@@ -198,6 +221,7 @@
           counter++;
           console.log("clicked: ", counter, ship.name);
           if (counter === ship.length) {
+            player.cellsLeft += ship.length;
             player.placed++;
             return resolve();
           }
@@ -217,7 +241,7 @@
         }
         if (toPlace.length === player.placed) {
           $("#log").append(`All ships placed.`);
-          $(this).html("Ready to play").prop("disabled", false);
+          $(this).html("Ready to play").prop("disabled", true);
           game();
         }
       });
@@ -262,7 +286,7 @@
       </thead>
       <tbody></tbody>
     </table>
-    <button id="start">Start Game</button>
+    <button id="start">Place Ships!</button>
     <div>
       <h3>Game Log</h3>
       <div id="log">
