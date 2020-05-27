@@ -21,11 +21,11 @@
   </style>
   <script>
     const toPlace = [
-      { name: "carrier", length: 5 },
-      { name: "battleship", length: 4 },
-      { name: "cruiser", length: 3 },
-      { name: "submarine", length: 3 },
-      { name: "destroyer", length: 2 },
+      { name: "carrier5", length: 5 },
+      { name: "battleship4", length: 4 },
+      { name: "cruiser3", length: 3 },
+      { name: "submarine3", length: 3 },
+      { name: "destroyer2", length: 2 },
     ];
 
     let player = {
@@ -79,71 +79,82 @@
     const updatePlacement = (coordinates) => {
       coordinates.forEach((element) => {
         ai.placement[element.col][element.row] = 1;
+        $(`#ai #${element.col}${element.row + 1}`).css(
+          "background-color",
+          "grey"
+        );
       });
     };
 
-    const generateShip = (ship) => {
+    const generateShip = async (ship) => {
       const columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
       const result = [];
       const start = generateStart();
       const direction = randomSelection();
-      canPlace(start.col, start.row)
-        ? result.push({ col: start.col, row: start.row })
-        : generateShip(ship);
-      // console.log("start", start);
-      if (direction) {
-        const index = columns.indexOf(start.col);
-        if (index + ship.length < 10) {
-          for (let i = 1; i < ship.length; i++) {
-            const next = columns[index + i];
-            const row = start.row;
-            canPlace(next, row)
-              ? result.push({ col: next, row })
-              : generateShip(ship, start, direction);
-            // console.log("horizontal forward ABC", { col: next, row });
-          }
+      try {
+        if (!canPlace(start.col, start.row)) {
+          generateShip(ship);
         } else {
-          for (let i = 1; i < ship.length; i++) {
-            const next = columns[index - i];
+          result.push({ col: start.col, row: start.row });
+          if (direction) {
+            const index = columns.indexOf(start.col);
+            if (index + ship.length < 10) {
+              for (let i = 1; i < ship.length; i++) {
+                const next = columns[index + i];
+                const row = start.row;
+                canPlace(next, row)
+                  ? result.push({ col: next, row })
+                  : generateShip(ship);
+                // console.log("horizontal forward ABC", { col: next, row });
+              }
+            } else {
+              for (let i = 1; i < ship.length; i++) {
+                const next = columns[index - i];
+                const row = start.row;
+                canPlace(next, row)
+                  ? result.push({ col: next, row })
+                  : generateShip(ship);
+                // console.log("horizontal backward BCA", { col: next, row });
+              }
+            }
+          } else {
             const row = start.row;
-            canPlace(next, row)
-              ? result.push({ col: next, row })
-              : generateShip(ship, start, direction);
-            // console.log("horizontal backward BCA", { col: next, row });
+            if (row + ship.length < 10) {
+              for (let i = 1; i < ship.length; i++) {
+                const col = start.col;
+                const next = start.row + i;
+                canPlace(col, next)
+                  ? result.push({ col, row: next })
+                  : generateShip(ship);
+                // console.log("vertical increase 123", { col, row: next });
+              }
+            } else {
+              for (let i = 1; i < ship.length; i++) {
+                const col = start.col;
+                const next = start.row - i;
+                canPlace(col, next)
+                  ? result.push({ col, row: next })
+                  : generateShip(ship);
+                // console.log("vertical decrease 321", { col, row: next });
+              }
+            }
           }
         }
-      } else {
-        const row = start.row;
-        if (row + ship.length < 10) {
-          for (let i = 1; i < ship.length; i++) {
-            const col = start.col;
-            const next = start.row + i;
-            canPlace(col, next)
-              ? result.push({ col, row: next })
-              : generateShip(ship, start, direction);
-            // console.log("vertical increase 123", { col, row: next });
-          }
-        } else {
-          for (let i = 1; i < ship.length; i++) {
-            const col = start.col;
-            const next = start.row - i;
-            canPlace(col, next)
-              ? result.push({ col, row: next })
-              : generateShip(ship, start, direction);
-            // console.log("vertical decrease 321", { col, row: next });
-          }
+        if (result.length === ship.length) {
+          console.log(`Ship: ${ship.name} (${ship.length}):`, result);
+          updatePlacement(result);
         }
+        // updatePlacement(result);
+        // return result;
+      } catch {
+        console.log("error");
       }
-
-      console.log(`Ship: ${ship.name}:`, result);
-      return result;
     };
 
-    const placeAi = () => {
-      const columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+    const placeAi = async () => {
       for (const ship of toPlace) {
-        const newShip = generateShip(ship);
-        updatePlacement(newShip);
+        // await generateShip(ship).then((data) => updatePlacement(data));
+        generateShip(ship);
       }
     };
 
